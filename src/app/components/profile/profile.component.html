@@ -1,0 +1,49 @@
+<app-navbar [user]="user"/>
+
+<div class="container">
+    <div class="row my-5">
+        <div class="col-4">
+            <div class="p-4 mb-3 bg-warning shadow-sm text-white rounded text-center">
+                <img [src]="user?.avatar_url" [alt]="user.login" class="img-fluid rounded-circle w-50 ">
+                <h4>{{user?.name}}</h4>
+                <span>{{user?.login}}</span>
+               
+                <div class="d-flex gap-5 justify-content-center my-3">
+                    <div class="">
+                        <h6>Followers</h6>
+                        <p class="fs-4">{{user?.followers}}</p>
+                    </div>
+                    <div class="">
+                        <h6>Following</h6>
+                        <p class="fs-4">{{user?.following}}</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="col-8">
+            <form (ngSubmit)="send()" >
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" [(ngModel)]="name" name="name" >
+                    <label>Your Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" [(ngModel)]="bio" name="bio">
+                    <label>Bio</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" [(ngModel)]="location" name="location" >
+                    <label>Location</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" [(ngModel)]="company" name="company">
+                    <label>Company</label>
+                </div>
+                
+                <button type="submit" class="btn btn-warning col-12 mt-3">UPDATE</button>
+              </form>
+        
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,31 @@
+<div class="container-fluid ">
+    <div class="row">
+        <div class="col-md-6 bg-primary px-4 min-vh-100 d-none d-lg-block">
+            <img src="./assets/img/Analytics-rafiki.svg" class="img-fluid" alt="">
+        </div>
+        <div class="col-md-6">
+            <div class="min-vh-100 d-flex justify-content-center align-items-center">
+                <main class="form-signin w-75 m-auto">
+                    <form  [formGroup]="loginForm" (ngSubmit)="login()">
+                        <div class="d-flex align-items-center gap-3">
+                            <img class="mb-4" src="./assets/img/github.png" alt="" width="50">
+                            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+                        </div>
+                      
+                  
+                      <div class="form-floating mb-2" [ngClass]="this.isInvalid ? 'is-invalid': ''">
+                        <input type="text" class="form-control"  [ngClass]="this.isInvalid ? 'is-invalid': ''" id="floatingInput" placeholder="your access token" formControlName="token">
+                        <label for="floatingInput">Your Access Token</label>
+                      </div>
+                      <div class="invalid-feedback mb-3">
+                        Please enter the correct token.
+                      </div>
+                
+                      <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+                    </form>
+                  </main>
+            </div>
+           
+        </div>
+    </div>
+</div>

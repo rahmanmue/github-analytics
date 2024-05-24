@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg bg-body-light shadow-sm">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-3" href="/">
+        <img src="./assets/img/github.png" alt="profile" width="30">
+        Github Analytics
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav container d-lg-flex justify-content-end">
+          <li class="nav-item mx-lg-auto">
+          
+            <a class="nav-link d-flex gap-2" routerLink="/dashboard"> 
+              <i class="bi bi-speedometer2 ms-1 ms-lg-0"></i>
+              <span class="ms-2 ms-lg-1">My Dashboard</span>
+             </a>
+
+           
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img [src]="user?.avatar_url" class="img-fluid rounded-circle me-2" alt="Logo" width="25">
+              {{user?.login}}
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" routerLink="/profile">Profile</a></li>
+              <li><a class="dropdown-item" (click)="logout()">LogOut</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
