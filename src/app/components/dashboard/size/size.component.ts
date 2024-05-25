@@ -62,7 +62,7 @@ export class SizeComponent {
         datasets: [{
           label: 'Size per Repositori (KB)',
           data: size,
-          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgb(255, 205, 86)',
         }]
       },
       options: {
