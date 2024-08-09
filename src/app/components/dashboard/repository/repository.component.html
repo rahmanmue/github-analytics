@@ -1,29 +1,41 @@
 <div class="row gap-lg-0 gap-4">
-    <div class="col-lg-6 col-sm-12">
-        <canvas id="programmingLanguageChart" width="200" height="200"></canvas>
+  <div class="col-lg-6 col-sm-12">
+    <canvas id="programmingLanguageChart" width="200" height="200"></canvas>
+  </div>
+  <div class="col-lg-6 col-sm-12">
+    <div class="table-responsive small">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nama Repository</th>
+            <th scope="col" class="text-center">Tanggal Dibuat</th>
+            <th scope="col" class="text-center">Link Repository</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of repos; track $index) {
+          <tr>
+            <td>{{ $index + 1 + (currentPage - 1) * perPage }}</td>
+            <td>{{ item.name }}</td>
+            <td class="text-center">{{ item.created_at | date }}</td>
+            <td class="text-center">
+              <a
+                [href]="item.html_url"
+                class="badge text-bg-primary text-decoration-none"
+                >Go To Project</a
+              >
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
     </div>
-    <div class="col-lg-6 col-sm-12">
-        <div class="table-responsive small">
-            <table class="table table-striped table-sm">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Nama Repository</th>
-                    <th scope="col" class="text-center">Tanggal Dibuat</th>
-                    <th scope="col" class="text-center">Link Repository</th>
-                </tr>
-                </thead>
-                <tbody>
-                @for (item of repos; track $index) {
-                    <tr>
-                        <td>{{$index + 1}}</td>
-                        <td>{{item.name}}</td>
-                        <td class="text-center">{{item.created_at | date}}</td>
-                        <td class="text-center"><a [href]="item.html_url" class="badge text-bg-primary text-decoration-none">Go To Project</a></td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
+
+    <div class="d-flex gap-2 justify-content-center align-items-center mb-5">
+      <a class="btn btn-primary btn-sm" (click)="prevPage()">Prev</a>
+      <span class="fs-6">{{ currentPage }}</span>
+      <a class="btn btn-primary btn-sm" (click)="nextPage()">Next</a>
     </div>
+  </div>
 </div>
