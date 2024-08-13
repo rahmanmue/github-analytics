@@ -5,16 +5,17 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
+export class AuthService {
   BASE_API = `${environment.apiUrl}/user`;
-
   constructor(private http: HttpClient) {}
 
-  getUser() {
-    return this.http.get<any>(this.BASE_API);
-  }
-
-  updateUserProfile(body: any) {
-    return this.http.patch(this.BASE_API, body);
+  login(token: string) {
+    return this.http.get<any>(this.BASE_API, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: 'json',
+    });
   }
 }

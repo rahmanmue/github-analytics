@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
-  BASE_API = 'https://api.github.com';
+  BASE_API = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 
