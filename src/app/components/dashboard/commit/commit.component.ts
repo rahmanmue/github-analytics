@@ -1,6 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DashboardService } from '../../../services/dashboard.service';
 import Chart from 'chart.js/auto';
+import { Store } from '@ngrx/store';
+import { PaginationState } from '../../../state/pagination/pagination.reducer';
+import { distinctUntilChanged, forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { selectRepos } from '../../../state/repos/repos.selectors';
 
 interface RepositoryCommit {
   repoName: string;
@@ -8,43 +13,59 @@ interface RepositoryCommit {
   start: number;
   size: number;
 }
+
 @Component({
   selector: 'app-commit',
   standalone: true,
   imports: [],
   templateUrl: './commit.component.html',
   styleUrl: './commit.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommitComponent {
-  repos!: any;
+  repos$!: Observable<any[]>;
   repoCommitData: RepositoryCommit[] = [];
-  constructor(private dashboardService: DashboardService) {
-    this.dashboardService.getRepos().subscribe({
-      next: (data) => {
-        this.repos = data;
-        this.getCommitAllRepo();
-      },
-      error: (err) => console.log(err),
-    });
+
+  constructor(
+    private dashboardService: DashboardService,
+    private store: Store
+  ) {
+    this.repos$ = this.store.select(selectRepos);
   }
 
-  getCommitAllRepo() {
+  ngOnInit() {
+    this.repos$
+      .pipe(
+        distinctUntilChanged(),
+        tap((repos) => {
+          if (repos.length > 0) {
+            this.getCommitAllRepo(repos);
+          }
+        })
+      )
+      .subscribe(); // Pastikan untuk meng-subscribe observable
+  }
+
+  getCommitAllRepo(repos: any[]) {
     this.repoCommitData = [];
-    this.repos.forEach((repo: any) => {
-      this.dashboardService
-        .getCommitRepo(repo.owner.login, repo.name)
-        .subscribe((data: any) => {
+
+    const repoCommitRequests = repos.map((repo) =>
+      this.dashboardService.getCommitRepo(repo.owner.login, repo.name).pipe(
+        tap((data: any) => {
           this.repoCommitData.push({
             repoName: repo.name,
             commitCount: data.length,
             start: repo.stargazers_count,
             size: repo.size,
           });
-          // Jika semua data telah diambil, buat chart
-          if (this.repoCommitData.length === this.repos.length) {
-            this.createChartRepo();
-          }
-        });
+        })
+      )
+    );
+
+    // Menggunakan forkJoin untuk menunggu semua request selesai
+    forkJoin(repoCommitRequests).subscribe(() => {
+      // Semua data telah diambil, buat chart
+      this.createChartRepo();
     });
   }
 

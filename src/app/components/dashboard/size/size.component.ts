@@ -1,6 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { DashboardService } from '../../../services/dashboard.service';
 import Chart from 'chart.js/auto';
+import { distinctUntilChanged, Observable, catchError, of, tap } from 'rxjs';
+import { PaginationState } from '../../../state/pagination/pagination.reducer';
+import { Store } from '@ngrx/store';
+import { selectRepos } from '../../../state/repos/repos.selectors';
+import { ReposState } from '../../../state/repos/repos.reducers';
 
 interface RepositoryCommit {
   repoName: string;
@@ -17,65 +22,59 @@ interface RepositoryCommit {
   styleUrl: './size.component.scss',
 })
 export class SizeComponent {
-  repos!: any;
+  repos$!: Observable<ReposState['repos']>;
   repoCommitData: RepositoryCommit[] = [];
-  constructor(private dashboardService: DashboardService) {
-    this.getRepos();
+  private chart!: Chart<'bar', number[], string>;
+
+  constructor(
+    private dashboardService: DashboardService,
+    private store: Store<{ repos: ReposState }>
+  ) {
+    this.repos$ = this.store.select((state) => state.repos.repos);
   }
 
-  getRepos() {
-    this.dashboardService.getRepos().subscribe({
-      next: (data) => {
-        this.repos = data;
-        this.getCommitAllRepo();
-      },
-      error: (err) => console.log(err),
-    });
+  ngOnInit() {
+    this.repos$
+      .pipe(
+        distinctUntilChanged(),
+        tap((repos) => {
+          if (repos.length > 0) {
+            this.getCommitAllRepo(repos);
+          }
+        })
+      )
+      .subscribe();
   }
 
-  getCommitAllRepo() {
-    this.repoCommitData = [];
+  getCommitAllRepo(repos: ReposState['repos']) {
     let completedRequests = 0;
+    this.repoCommitData = [];
 
-    if (this.repos.length === 0) {
-      this.createChartSize();
-      return;
-    }
-
-    this.repos.forEach((repo: any) => {
+    repos.forEach((repo: any) => {
       this.dashboardService
         .getCommitRepo(repo.owner.login, repo.name)
-        .subscribe({
-          next: (data: any) => {
-            if (data.status !== 409) {
-              const commitCount = data.length;
-              this.repoCommitData.push({
-                repoName: repo.name,
-                commitCount: commitCount,
-                start: repo.stargazers_count,
-                size: repo.size,
-              });
-            }
-            completedRequests++;
-
-            // Jika semua data telah diambil, buat chart
-            if (completedRequests === this.repos.length) {
-              this.createChartSize();
-            }
-          },
-          error: (error) => {
+        .pipe(
+          catchError((error) => {
             console.error('Error fetching commit data', error);
-            completedRequests++;
-
-            // Handle the case where there is an error but still want to proceed with chart creation
-            if (completedRequests === this.repos.length) {
-              this.createChartSize();
-            }
-          },
+            return of([]); // Fallback to empty array on error
+          })
+        )
+        .subscribe((data: any) => {
+          if (data.length > 0 && data.status !== 409) {
+            this.repoCommitData.push({
+              repoName: repo.name,
+              commitCount: data.length,
+              start: repo.stargazers_count,
+              size: repo.size,
+            });
+          }
+          completedRequests++;
+          if (completedRequests === repos.length) {
+            this.createChartSize();
+          }
         });
     });
   }
-
   createChartSize() {
     const repoNames = this.repoCommitData.map((repo) => repo.repoName);
     const size = this.repoCommitData.map((repo) => repo.size);
@@ -86,7 +85,11 @@ export class SizeComponent {
       return;
     }
 
-    new Chart(ctx, {
+    if (this.chart) {
+      this.chart.destroy(); // Destroy existing chart before creating a new one
+    }
+
+    this.chart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: repoNames,
@@ -106,5 +109,11 @@ export class SizeComponent {
         },
       },
     });
+  }
+
+  ngOnDestroy() {
+    if (this.chart) {
+      this.chart.destroy(); // Clean up the chart on component destroy
+    }
   }
 }

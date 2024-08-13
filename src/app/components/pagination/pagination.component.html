@@ -1,0 +1,5 @@
+<div class="d-flex gap-2 justify-content-center align-items-center mb-5">
+  <a class="btn btn-primary btn-sm" (click)="prevPage()">Prev</a>
+  <span class="fs-6">{{ paginationState$ | async }}</span>
+  <a class="btn btn-primary btn-sm" (click)="nextPage()">Next</a>
+</div>
